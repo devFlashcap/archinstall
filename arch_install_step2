@@ -1,0 +1,84 @@
+#!/bin/bash
+
+if [ -z $1 ]
+then
+	echo "Missing argument: partition table ( /dev/sdX )"
+	exit 1
+fi
+
+echo "UPDATING DATABASES-----------------"
+pacman -Sy
+
+echo "INSTALLING REFLECTOR PACKAGE-------"
+pacman -S --noconfirm reflector
+echo "UPDATING MIRRORLIST----------------"
+reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+
+echo "INSTALLING GRUB PACKAGE------------"
+pacman -S --noconfirm grub
+echo "INSTALLING GRUB--------------------"
+grub-install --target=i386-pc $1
+echo "CREATING GRUB CONFIG---------------"
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "INSTALLING PACKAGES----------------"
+while IFS=";" read -r package service
+do
+	echo "INSTALLING PACKAGE $package"
+	pacman -S --noconfirm $package
+	if [ ! -z $service ]
+	then
+		echo "ENABLING SERVICE $service"
+		systemctl enable $service
+	fi
+done < packages
+
+echo "SETTING ROOT PASSWORD--------------"
+passwd
+
+echo "SETTING LOCALE---------------------"
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "en_US ISO-8859-1" >> /etc/locale.gen
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+locale-gen
+
+echo "SETTING LOCALTIME------------------"
+read -p "Region: " region
+while [ ! -e "/usr/share/zoneinfo/$region" ]
+do
+	echo "Region specified doesn't exist!"
+	read -p "Region: " region
+done
+if [ -e /etc/localtime ]
+then
+	rm /etc/localtime
+fi
+ln -s "/usr/share/zoneinfo/$region" /etc/localtime
+timedatectl set-ntp true
+
+echo "SETTING HOSTNAME-------------------"
+read -p "Hostname: " hostname
+while [ -z $hostname ]
+do
+	echo "Hostname can't be empty"
+	read -p "Hostname: " hostname
+done
+echo $hostname > /etc/hostname
+
+echo "ENABLING SUDO FOR GROUP: WHEEL"
+echo "%wheel ALL=(ALL) ALL" | EDITOR="tee -a" visudo
+
+read -p "Do you want to add a new user? ( y/n ): " choice
+if [ "$choice" == "y" ]
+then
+	echo "ADDING NEW USER--------------------"
+	read -p "Username: " username
+	while [ -z $username ]
+	do
+		echo "Username can't be empty!"
+		read -p "Username: " username
+	done
+	useradd -mg users -G wheel,storage,power -s /bin/bash $username
+	passwd $username
+fi
+

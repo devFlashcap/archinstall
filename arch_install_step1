@@ -1,0 +1,41 @@
+#!/bin/bash
+
+read -p "Device: " partition_table
+read -p "Root partition: " partition_root
+read -p "Boot partition: " partition_boot
+read -p "Swap partition: " partition_swap
+read -p "Home partition: " partition_home
+
+echo "MAKING ROOT PARTITION FS-----------"
+mkfs.ext4 $partition_root
+echo "MAKING BOOT PARTITION FS-----------"
+mkfs.ext4 $partition_boot
+echo "MAKING SWAP PARTITION FS-----------"
+mkswap $partition_swap
+echo "MAKING HOME PARTITION FS-----------"
+mkfs.ext4 $partition_home
+
+echo "MOUNTING ROOT PARTITION------------"
+mount $partition_root /mnt
+echo "CREATING BOOT MOUNT POINT----------"
+mkdir /mnt/boot
+echo "CREATIONG HOME MOUNT POINT---------"
+mkdir /mnt/home
+echo "MOUNTING BOOT PARTITION------------"
+mount $partition_boot /mnt/boot
+echo "MOUNTING HOME PARTITION------------"
+mount $partition_home /mnt/home
+echo "ACTIVATING SWAP PARTITION----------"
+swapon $partition_swap
+
+echo "INSTALLING REFLECTOR---------------"
+pacman -Sy
+pacman -S --noconfirm reflector
+echo "UPDATING MIRRORLIST----------------"
+reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+echo "INSTALLING BASE PACKAGES-----------"
+pacstrap /mnt base base-devel linux linux-firmware
+echo "GENERATING FSTAB-------------------"
+genfstab -U /mnt >> /mnt/etc/fstab
+echo "CHROOTING INTO THE NEW SYSTEM------"
+arch-chroot /mnt
