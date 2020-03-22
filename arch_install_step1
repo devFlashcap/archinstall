@@ -38,4 +38,7 @@ pacstrap /mnt base base-devel linux linux-firmware
 echo "GENERATING FSTAB-------------------"
 genfstab -U /mnt >> /mnt/etc/fstab
 echo "CHROOTING INTO THE NEW SYSTEM------"
+mkdir /mnt/install
+cp ./arch_install_step2 /mnt/install
+cp ./packages /mnt/install
 arch-chroot /mnt
