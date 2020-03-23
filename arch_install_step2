@@ -80,10 +80,13 @@ git config --global user.email "$gemail"
 git config --global user.name "$guser"
 
 echo "Cloning repositories"
-cd /home/$username
+mkdir /home/$username/repos
+cd /home/$username/repos
 while IFS=";" read -r remote url
 do
 	echo "Cloning repository: $url - Remote name: $remote"
 	git clone $url
+	cd $remote
 	git remote add $remote $url
+	cd ..
 done < /install/repos
