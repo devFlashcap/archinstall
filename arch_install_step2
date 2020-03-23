@@ -21,18 +21,6 @@ grub-install --target=i386-pc $1
 echo "CREATING GRUB CONFIG---------------"
 grub-mkconfig -o /boot/grub/grub.cfg
 
-echo "INSTALLING PACKAGES----------------"
-while IFS=";" read -r package service
-do
-	echo "INSTALLING PACKAGE $package"
-	pacman -S --noconfirm $package
-	if [ ! -z $service ]
-	then
-		echo "ENABLING SERVICE $service"
-		systemctl enable $service
-	fi
-done < /install/packages
-
 echo "SETTING ROOT PASSWORD--------------"
 passwd
 
@@ -73,13 +61,14 @@ read -p "Username: " username
 useradd -mg users -G wheel,storage,power -s /bin/bash $username
 passwd $username
 
-echo "CONFIGURING GIT-------------------"
+echo "INSTALLING GIT---------------------"
+pacman -S --noconfirm git
 read -p "E-mail: " gemail
 read -p "Username: " guser
 git config --global user.email "$gemail"
 git config --global user.name "$guser"
 
-echo "Cloning repositories"
+echo "CLONING REPOSITORIES---------------"
 mkdir /home/$username/repos
 cd /home/$username/repos
 while IFS=";" read -r remote url
