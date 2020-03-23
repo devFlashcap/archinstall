@@ -74,10 +74,10 @@ useradd -mg users -G wheel,storage,power -s /bin/bash $username
 passwd $username
 
 echo "CONFIGURING GIT-------------------"
-read -p "E-mail: " email
-read -p "Username: " username
-git config --global user.email "$email"
-git config --global user.name "$username"
+read -p "E-mail: " gemail
+read -p "Username: " guser
+git config --global user.email "$gemail"
+git config --global user.name "$guser"
 
 echo "Cloning repositories"
 cd /home/$username
