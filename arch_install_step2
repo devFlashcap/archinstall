@@ -31,7 +31,7 @@ do
 		echo "ENABLING SERVICE $service"
 		systemctl enable $service
 	fi
-done < packages
+done < /install/packages
 
 echo "SETTING ROOT PASSWORD--------------"
 passwd
