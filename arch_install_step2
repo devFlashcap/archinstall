@@ -72,3 +72,18 @@ echo "ADDING NEW USER--------------------"
 read -p "Username: " username
 useradd -mg users -G wheel,storage,power -s /bin/bash $username
 passwd $username
+
+echo "CONFIGURING GIT-------------------"
+read -p "E-mail: " email
+read -p "Username: " username
+git config --global user.email "$email"
+git config --global user.name "$username"
+
+echo "Cloning repositories"
+cd /home/$username
+while IFS=";" read -r remote url
+do
+	echo "Cloning repository: $url - Remote name: $remote"
+	git clone url
+	git remote add $remote $url
+done < /install/repos
