@@ -41,5 +41,5 @@ echo "CHROOTING INTO THE NEW SYSTEM------"
 mkdir /mnt/install
 cp ./arch_install_step2 /mnt/install
 cp ./packages /mnt/install
-arch-chroot /mnt ./install/arch_install_step2
+arch-chroot /mnt ./install/arch_install_step2 $partition_table
 rm -rf /mnt/install
