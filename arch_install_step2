@@ -69,8 +69,8 @@ git config --global user.email "$gemail"
 git config --global user.name "$guser"
 
 echo "CLONING REPOSITORIES---------------"
-mkdir /home/$username/repos
-cd /home/$username/repos
+mkdir /home/$username/.repos
+cd /home/$username/.repos
 while IFS=";" read -r remote url
 do
 	echo "Cloning repository: $url - Remote name: $remote"
