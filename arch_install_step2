@@ -62,7 +62,7 @@ useradd -mg users -G wheel,storage,power -s /bin/bash $username
 passwd $username
 
 echo "INSTALLING GIT---------------------"
-pacman -S --noconfirm git
+pacman -S --noconfirm git networkmanager
 read -p "E-mail: " gemail
 read -p "Username: " guser
 git config --global user.email "$gemail"
